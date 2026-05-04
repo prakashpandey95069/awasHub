@@ -4,6 +4,19 @@ A complete full-stack Machine Learning web application that predicts house price
 
 ---
 
+## 🤖 Machine Learning Algorithm Used
+
+### Multiple Linear Regression
+For the **AwasHub** price prediction model, we used the **Multiple Linear Regression** algorithm from the `scikit-learn` library.
+
+#### Why this algorithm?
+* **Continuous Value Prediction**: Since our target variable (`price`) is a continuous numerical value (not a category), regression is the correct approach.
+* **Feature Dependency**: House prices are directly and linearly influenced by continuous numerical factors like square footage (Carpet Area), number of rooms (BHK), bathrooms, stories, and parking slots.
+* **High Interpretability**: Linear regression makes it easy to understand how much each feature affects the final price (via coefficients).
+* **Efficiency**: It is computationally lightweight, fast to train, and runs smoothly on low-resource machines and microservices.
+
+---
+
 ## 🏗️ Project Architecture
 
 The system is split into three main decoupled layers:
