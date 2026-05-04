@@ -8,7 +8,7 @@ app.use(cors());
 
 app.post("/predict", async (req, res) => {
     try {
-        // Forward request directly to Python ML Service
+
         const response = await axios.post("http://127.0.0.1:5001/predict", req.body);
         res.json(response.data);
     } catch (error) {
