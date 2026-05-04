@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian House Price Prediction</title>
+    <style>
+        :root {
+            --primary: #059669;
+            --background: #f0fdf4;
+            --card: #ffffff;
+            --text: #0f172a;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            border-top: 5px solid var(--primary);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            color: #475569;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-predict { background: var(--primary); color: white; }
+        .btn-predict:hover { background: #047857; }
+        .btn-sample { background: #0ea5e9; color: white; }
+        .btn-sample:hover { background: #0284c7; }
+        .btn-clear { background: #ef4444; color: white; }
+        .btn-clear:hover { background: #dc2626; }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+        .success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🇮🇳 Indian House Price Predictor</h2>
+    
+    <form id="predictionForm">
+        <div class="grid">
+            <div class="input-group">
+                <label for="area">Carpet Area (Sq. Ft.)</label>
+                <input type="number" id="area" placeholder="e.g. 1050" required min="100">
+            </div>
+
+            <div class="input-group">
+                <label for="bedrooms">BHK (Rooms)</label>
+                <input type="number" id="bedrooms" placeholder="e.g. 2 or 3" required min="1">
+            </div>
+
+            <div class="input-group">
+                <label for="bathrooms">Bathrooms</label>
+                <input type="number" id="bathrooms" placeholder="e.g. 2" required min="1">
+            </div>
+
+            <div class="input-group">
+                <label for="stories">Stories/Floors</label>
+                <input type="number" id="stories" placeholder="e.g. 1 for single floor" required min="1">
+            </div>
+
+            <div class="input-group">
+                <label for="parking">Parking Slots</label>
+                <input type="number" id="parking" placeholder="e.g. 0, 1, or 2" required min="0">
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-predict">Predict Price</button>
+                <button type="button" class="btn-sample" onclick="loadSampleData()">Sample Data</button>
+                <button type="button" class="btn-clear" onclick="clearForm()">Clear</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    const form = document.getElementById("predictionForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        resultDiv.style.display = "block";
+        resultDiv.className = "success";
+        resultDiv.innerText = "Calculating price...";
+
+        const propertyData = {
+            area: parseFloat(document.getElementById("area").value),
+            bedrooms: parseInt(document.getElementById("bedrooms").value),
+            bathrooms: parseInt(document.getElementById("bathrooms").value),
+            stories: parseInt(document.getElementById("stories").value),
+            parking: parseInt(document.getElementById("parking").value)
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(propertyData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.price) {
+                resultDiv.className = "success";
+                resultDiv.innerHTML = `Estimated Price: <br><span style="font-size: 24px;">₹ ${result.price} Lakhs</span>`;
+            } else {
+                resultDiv.className = "error";
+                resultDiv.innerText = "Error: " + (result.error || "Prediction failed");
+            }
+        } catch (error) {
+            resultDiv.className = "error";
+            resultDiv.innerText = "Backend server se connection nahi ho saka.";
+        }
+    });
+
+    function loadSampleData() {
+        document.getElementById("area").value = 1500;
+        document.getElementById("bedrooms").value = 3;
+        document.getElementById("bathrooms").value = 2;
+        document.getElementById("stories").value = 2;
+        document.getElementById("parking").value = 1;
+    }
+
+    function clearForm() {
+        form.reset();
+        resultDiv.style.display = "none";
+        resultDiv.innerHTML = "";
+    }
+</script>
+
+</body>
+</html>
